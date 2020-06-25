@@ -1,56 +1,13 @@
-#' geom_trail
-#' @description Mark a trail with a plot just like the base plot type = "b".
-#' You can also leave the dots blank, thus allowing use of text instead of
-#' points (see examples).
-#' @name geom_trail
-#' @import ggplot2
-#' @inheritParams ggplot2::geom_point
-#' @section Additional arguments:
-#' **`gap`** gap between points and lines
-#' @section Aesthetics:
-#' `geom_trail` understands the following aesthetics (required aesthetics
-#' are in bold):
-#'
-#'   - **`x`**
-#'   - **`y`**
-#'   - `alpha`
-#'   - `color`
-#'   - `linetype`
-#'   - `size` size of points - 0 for empty space
-#'   - `linesize`
-#' @examples
-#' library(ggplot2)
-#' library(dplyr)
-#'
-#' ggplot(pressure, aes(temperature, pressure)) +
-#'   geom_ribbon(aes(ymin = pressure - 50, ymax = pressure + 50), alpha = 0.2) +
-#'   geom_trail()
-#'
-#' amd_aggr <-
-#' amd %>%
-#'   group_by(
-#'     age_cut10 = cut_width(BaselineAge, 10),
-#'     days_cut90 = cut_width(FollowupDays, 90, labels = seq(0, 810, 90))
-#'   ) %>%
-#'   summarise(mean_va = mean(VA_ETDRS_Letters))
-#'
-#' p <- ggplot(amd_aggr, aes(days_cut90, mean_va, color = age_cut10)) +
-#'        theme_classic() +
-#'        labs(
-#'          x = "Follow up time [Days]", y = "Mean VA [ETDRS letters]",
-#'          color = "Age strata"
-#'        )
-#'
-#' p + geom_trail(aes(group = age_cut10))
-#'
-#' p + geom_trail(aes(group = age_cut10), size = 0) +
-#'   geom_text(aes(label = round(mean_va, 0)), show.legend = FALSE)
-#' @seealso
-#' The geom was modified from the suggestion by user teunbrand on
-#' Stackoverflow in
-#' [this thread](https://stackoverflow.com/a/55857158/7941188)
-#' @export
 
+This is a modified version of https://stackoverflow.com/a/55857158/7941188
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(patchwork)
+```
+
+```{r}
 geom_trail <-
   function (mapping = NULL, data = NULL, stat = "identity", position = "identity",
             na.rm = FALSE, show.legend = NA, inherit.aes = TRUE, ...) {
@@ -59,25 +16,20 @@ geom_trail <-
           params = list(na.rm = na.rm, ...))
   }
 
-#' @rdname geom_trail
-#' @import grid
-#' @import ggplot2
-#' @export
-
 GeomTrail <- ggplot2::ggproto(
   "GeomTrail", ggplot2::GeomPoint,
   draw_panel = function(data, panel_params, coord, na.rm = FALSE) {
-
+    
     # must be sorted on group
     data <- data[order(data$group), , drop = FALSE]
     munched <- coord_munch(coord, data, panel_params)
-
+    
     # Default geom point behaviour
     if (is.character(data$shape)) {
       data$shape <- translate_shape_string(data$shape)
     }
     coords <- coord$transform(data, panel_params)
-
+    
     if (unique(coords$size == 0)) {
       my_points <- NULL
     } else {
@@ -93,25 +45,25 @@ GeomTrail <- ggplot2::ggproto(
         )
       )
     }
-
+    
     # Silently drop lines with less than two points, preserving order
     rows <- stats::ave(seq_len(nrow(munched)), munched$group, FUN = length)
     munched <- munched[rows >= 2, ]
     if (nrow(munched) < 2) {
       return(zeroGrob())
     }
-
+    
     # New behaviour
     ## Convert x and y to units
     x <- unit(coords$x, "npc")
     y <- unit(coords$y, "npc")
-
+    
     # Work out grouping variables for grobs
     n <- nrow(munched)
     group_diff <- munched$group[-1] != munched$group[-n]
     start <- c(TRUE, group_diff)
     end <- c(group_diff, TRUE)
-
+    
     ## Make custom grob class
     my_path <- grid::grob(
       x = x, y = y,
@@ -130,7 +82,7 @@ GeomTrail <- ggplot2::ggproto(
       ### Now this is the important bit:
       cl = "trail"
     )
-
+    
     ## Combine grobs
     ggplot2:::ggname(
       "geom_trail",
@@ -144,50 +96,124 @@ GeomTrail <- ggplot2::ggproto(
   )
 )
 
-
-#' grid draw method geom trail
-#' @description underlying drawing method for paths in geom_trail
-#' @rdname makeContent_trail
-#' @author Teun van den Brand
-#' @import grid
-#' @importFrom utils head
-#' @param x grob object passed to method
-#' @export
-
 makeContent.trail <- function(x){
   # Make hook for drawing
   # Convert npcs to absolute units
   x_new <- grid::convertX(x$x, "mm", TRUE)
   y_new <- grid::convertY(x$y, "mm", TRUE)
-
+  
   # Do trigonometry stuff
   hyp <- sqrt(diff(x_new)^2 + diff(y_new)^2)
   sin_plot <- diff(y_new) / hyp
   cos_plot <- diff(x_new) / hyp
-
+  
   diff_x0_seg <- head(x$mult, -1) * cos_plot
   diff_x1_seg <- (hyp - head(x$mult, -1)) * cos_plot
   diff_y0_seg <- head(x$mult, -1) * sin_plot
   diff_y1_seg <- (hyp - head(x$mult, -1)) * sin_plot
-
+  
   x0 = head(x_new, -1) + diff_x0_seg
   x1 = head(x_new, -1) + diff_x1_seg
   y0 = head(y_new, -1) + diff_y0_seg
   y1 = head(y_new, -1) + diff_y1_seg
   keep <- unclass(x0) < unclass(x1)
-
+  
   # Remove old xy coordinates
   x$x <- NULL
   x$y <- NULL
-
+  
   # Supply new xy coordinates
   x$x0 <- unit(x0, "mm")[keep]
   x$x1 <- unit(x1, "mm")[keep]
   x$y0 <- unit(y0, "mm")[keep]
   x$y1 <- unit(y1, "mm")[keep]
-
+  
   # Set to segments class
   class(x)[1] <- 'segments'
   x
 }
 
+```
+
+```{r}
+ggplot(pressure, aes(temperature, pressure)) +
+   geom_trail()
+
+ 
+testdf <- structure(list(A = c("(75,85", "(75,85", "(75,85", "(75,85", 
+"(75,85", "(75,85", "(75,85", "(75,85", "(75,85", "(85,95", "(85,95", 
+"(85,95", "(85,95", "(85,95", "(85,95", "(85,95", "(85,95", "(85,95", 
+"(95,105", "(95,105", "(95,105", "(95,105", "(95,105", "(95,105", 
+"(95,105", "(95,105", "(95,105"), B = c("0", "180", "270", "360", 
+"450", "540", "630", "720", "90", "0", "180", "270", "360", "450", 
+"540", "630", "720", "90", "0", "180", "270", "360", "450", "540", 
+"630", "720", "90"), C = c(57.4992967651196, 61.5562760537286, 
+61.3364097831103, 61.2489177489177, 61.8064171122995, 62.0222355769231, 
+62.1152291105121, 62.4370314842579, 61.0354914196568, 56.34151547492, 
+60.8717557251908, 59.6534508076358, 59.1148936170213, 60.2280071813285, 
+59.5571428571429, 60.0696055684455, 59.7123287671233, 59.9706572769953, 
+53.6289752650177, 56.3720930232558, 56.4319248826291, 54.5657894736842, 
+56.4674556213018, 55.9864864864865, 56.625, 58.2210526315789, 
+55.8153846153846)), row.names = c(NA, -27L), class = c("tbl_df", 
+"tbl", "data.frame"))
+
+
+p <-  testdf %>% arrange(A,B) %>%
+ggplot( aes(B, C, color = A)) 
+p1 <- p + geom_trail(aes(group = A))
+p1 + p1
+
+# to integer works
+p_int <- 
+testdf %>% mutate(B = as.integer(B)) %>% arrange(A,B) %>%
+  ggplot(aes(B, C, color = A)) 
+p2 <- p_int + geom_trail(aes(group = A))
+
+p2+p2
+
+# replacing with letters works
+p_let <- 
+testdf %>% mutate(A = letters[match(A, unique(A))]) %>% arrange(A,B) %>%
+  ggplot(aes(B, C, color = A)) 
+p3 <- p_let + geom_trail(aes(group = A))
+
+p3+p3
+
+# any slice works
+p_slice <- 
+testdf %>% group_by(A) %>% slice(1:8) %>% 
+  ungroup %>% arrange(A,B) %>%
+  ggplot(aes(B, C, color = A)) 
+p4 <- p_slice + geom_trail(aes(group = A))
+
+p4+p4
+
+# removing commas still doesn't work
+p_nocom <- 
+testdf %>% mutate(A = gsub("'", "", A)) %>% arrange(A,B) %>%
+  ggplot(aes(B, C, color = A)) 
+p5 <- p_nocom + geom_trail(aes(group = A))
+
+p5+p5
+
+# removing bracket works
+p_nobrack <- 
+testdf %>% mutate(A = gsub("\\(", "", A)) %>% arrange(A,B) %>%
+  ggplot(aes(B, C, color = A)) 
+p6 <- p_nobrack + geom_trail(aes(group = A))
+
+p6+p6
+```
+```{r}
+
+```
+
+with patchwork
+```{r,eval=FALSE}
+library(patchwork) 
+p1+p2 
+```
+
+
+
+ 
