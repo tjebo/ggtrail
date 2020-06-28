@@ -4,7 +4,7 @@
 \alias{makeContent.trail}
 \title{grid draw method geom trail}
 \usage{
-makeContent.trail(x)
+\method{makeContent}{trail}(x)
 }
 \arguments{
 \item{x}{grob object passed to method}

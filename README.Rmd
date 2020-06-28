@@ -11,6 +11,7 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+library(ggtrail)
 ```
 
 # ggtrail
@@ -90,3 +91,20 @@ p + geom_trail(aes(group = age_cut10))
 p + geom_trail(aes(group = age_cut10), size = 0) +
   geom_text(aes(label = round(mean_va, 0)), show.legend = FALSE)
 ```
+
+## An extended brewer scale for binned scales
+
+```{r}
+library(ggplot2)
+ggplot(mtcars, aes(mpg, disp, fill = hp)) +
+  geom_point(shape = 21) +
+  labs(title = "Craft brewer - an extended brewer scale") +
+  scale_fill_craftfermenter(
+    breaks = seq(0,520,40),
+    limits = c(0,520),
+    palette = "Spectral",
+    guide =  guide_colorsteps(even.steps = FALSE, # workaround for issues #4019/#4100
+                             barheight = 15) 
+  )
+```
+

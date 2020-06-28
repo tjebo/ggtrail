@@ -6,7 +6,7 @@
 \alias{GeomTrail}
 \title{geom_trail}
 \format{
-An object of class \code{GeomTrail} (inherits from \code{GeomPoint}, \code{Geom}, \code{ggproto}, \code{gg}) of length 3.
+An object of class \code{GeomTrail} (inherits from \code{GeomPoint}, \code{Geom}, \code{ggproto}, \code{gg}) of length 4.
 }
 \usage{
 geom_trail(

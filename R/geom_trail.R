@@ -1,3 +1,4 @@
+
 #' geom_trail
 #' @description Mark a trail with a plot just like the base plot type = "b".
 #' You can also leave the dots blank, thus allowing use of text instead of
@@ -62,15 +63,48 @@ geom_trail <-
 #' @rdname geom_trail
 #' @import grid
 #' @import ggplot2
+#' @importFrom rlang warn
+#' @importFrom stats complete.cases
+#' @importFrom stats ave
+#'
 #' @export
 
 GeomTrail <- ggplot2::ggproto(
   "GeomTrail", ggplot2::GeomPoint,
-  draw_panel = function(data, panel_params, coord, na.rm = FALSE) {
+
+    default_aes = ggplot2::aes(
+    shape = 19, colour = "black", size = 1.5, fill = NA, alpha = NA, stroke = 0.5,
+    linesize = 0.5, linetype = 1, gap = .9,
+  ),
+  handle_na = function(data, params) {
+    # Drop missing values at the start or end of a line - can't drop in the
+    # middle since you expect those to be shown by a break in the line
+    complete <- stats::complete.cases(data[c("x", "y", "size", "colour", "linetype")])
+    kept <- stats::ave(complete, data$group, FUN = keep_mid_true)
+    data <- data[kept, ]
+
+    if (!all(kept) && !params$na.rm) {
+      rlang::warn(glue("Removed {sum(!kept)} row(s) containing missing values (geom_path)."))
+    }
+
+    data
+  },
+
+  draw_panel = function(data, panel_params, coord, arrow = NULL,
+                        lineend = "butt", linejoin = "round", linemitre = 10,
+                        na.rm = FALSE) {
+    if (!anyDuplicated(data$group)) {
+      message_wrap("geom_path: Each group consists of only one observation. ",
+                   "Do you need to adjust the group aesthetic?")
+    }
+
 
     # must be sorted on group
     data <- data[order(data$group), , drop = FALSE]
     munched <- coord_munch(coord, data, panel_params)
+
+    # remove brackets if present
+    if(any(grepl("\\(", munched$group))) munched$group <- gsub("\\(", "", munched$group)
 
     # Default geom point behaviour
     if (is.character(data$shape)) {
@@ -103,10 +137,10 @@ GeomTrail <- ggplot2::ggproto(
 
     # New behaviour
     ## Convert x and y to units
-    x <- unit(coords$x, "npc")
-    y <- unit(coords$y, "npc")
+    x <- unit(munched$x, "npc")
+    y <- unit(munched$y, "npc")
 
-    # Work out grouping variables for grobs
+    ## Work out grouping variables for grobs
     n <- nrow(munched)
     group_diff <- munched$group[-1] != munched$group[-n]
     start <- c(TRUE, group_diff)
@@ -128,7 +162,7 @@ GeomTrail <- ggplot2::ggproto(
       ),
       vp = NULL,
       ### Now this is the important bit:
-      cl = "trail"
+      cl= "trail"
     )
 
     ## Combine grobs
@@ -136,12 +170,7 @@ GeomTrail <- ggplot2::ggproto(
       "geom_trail",
       grid::grobTree(my_path, my_points)
     )
-  },
-  # Adding some defaults for lines and gap
-  default_aes = ggplot2::aes(
-    shape = 19, colour = "black", size = 1.5, fill = NA, alpha = NA, stroke = 0.5,
-    linesize = 0.5, linetype = 1, gap = .9,
-  )
+  }
 )
 
 
@@ -189,5 +218,21 @@ makeContent.trail <- function(x){
   # Set to segments class
   class(x)[1] <- 'segments'
   x
+}
+
+# Trim false values from left and right: keep all values from
+# first TRUE to last TRUE
+keep_mid_true <- function(x) {
+  first <- match(TRUE, x) - 1
+  if (is.na(first)) {
+    return(rep(FALSE, length(x)))
+  }
+
+  last <- length(x) - match(TRUE, rev(x)) + 1
+  c(
+    rep(FALSE, first),
+    rep(TRUE, last - first),
+    rep(FALSE, length(x) - last)
+  )
 }
 

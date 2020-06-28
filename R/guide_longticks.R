@@ -24,7 +24,6 @@ guide_longticks <- function(...) {
 #' @param theme theme parameter
 #' @description Method for guide_longticks
 #'   from https://stackoverflow.com/a/62558606/7941188 teunbrand
-#' @examples
 guide_gengrob.guide_longticks <- function(guide, theme) {
   dir <- guide$direction
   guide <- NextMethod()

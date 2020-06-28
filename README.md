@@ -95,3 +95,23 @@ p <-
         geom_text(aes(label = round(mean_va, 0)), show.legend = FALSE)
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="45%" /><img src="man/figures/README-unnamed-chunk-2-2.png" width="45%" />
+
+## An extended brewer scale for binned scales
+
+``` r
+library(ggplot2)
+ggplot(mtcars, aes(mpg, disp, fill = hp)) +
+  geom_point(shape = 21) +
+  labs(title = "Craft brewer - an extended brewer scale") +
+  scale_fill_craftfermenter(
+    breaks = seq(0,520,40),
+    limits = c(0,520),
+    palette = "Spectral",
+    guide =  guide_colorsteps(even.steps = FALSE, # workaround for issues #4019/#4100
+                             barheight = 15) 
+  )
+#> Warning: 13 colours used, but Spectral has only 11 - New palette generated based
+#> on all colors of Spectral
+```
+
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
