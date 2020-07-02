@@ -72,25 +72,12 @@ geom_trail <-
 GeomTrail <- ggplot2::ggproto(
   "GeomTrail", ggplot2::GeomPoint,
 
-    default_aes = ggplot2::aes(
+  default_aes = ggplot2::aes(
     shape = 19, colour = "black", size = 1.5, fill = NA, alpha = NA, stroke = 0.5,
     linesize = 0.5, linetype = 1, gap = .9,
   ),
-  handle_na = function(data, params) {
-    # Drop missing values at the start or end of a line - can't drop in the
-    # middle since you expect those to be shown by a break in the line
-    complete <- stats::complete.cases(data[c("x", "y", "size", "colour", "linetype")])
-    kept <- stats::ave(complete, data$group, FUN = keep_mid_true)
-    data <- data[kept, ]
 
-    if (!all(kept) && !params$na.rm) {
-      rlang::warn(glue("Removed {sum(!kept)} row(s) containing missing values (geom_path)."))
-    }
-
-    data
-  },
-
-  draw_panel = function(data, panel_params, coord, arrow = NULL,
+  draw_panel = function(self, data, panel_params, coord, arrow = NULL,
                         lineend = "butt", linejoin = "round", linemitre = 10,
                         na.rm = FALSE) {
     if (!anyDuplicated(data$group)) {
@@ -98,62 +85,41 @@ GeomTrail <- ggplot2::ggproto(
                    "Do you need to adjust the group aesthetic?")
     }
 
-
-    # must be sorted on group
+    ##must be sorted on group
     data <- data[order(data$group), , drop = FALSE]
     munched <- coord_munch(coord, data, panel_params)
 
-    # remove brackets if present
-    if(any(grepl("\\(", munched$group))) munched$group <- gsub("\\(", "", munched$group)
-
-    # Default geom point behaviour
+    ##Default geom point behaviour
     if (is.character(data$shape)) {
       data$shape <- translate_shape_string(data$shape)
     }
     coords <- coord$transform(data, panel_params)
 
-    if (unique(coords$size == 0)) {
-      my_points <- NULL
-    } else {
-      my_points <- grid::pointsGrob(
-        coords$x,
-        coords$y,
-        pch = coords$shape,
-        gp = grid::gpar(
-          col = alpha(coords$colour, coords$alpha),
-          fill = alpha(coords$fill, coords$alpha),
-          fontsize = coords$size * .pt + coords$stroke * .stroke / 2,
-          lwd = coords$stroke * .stroke / 2
-        )
-      )
-    }
+    my_points <- ggproto_parent(GeomPoint, self)$draw_panel(
+      data, panel_params, coord, na.rm = na.rm
+    )
 
-    # Silently drop lines with less than two points, preserving order
+    ##Silently drop lines with less than two points, preserving order
     rows <- stats::ave(seq_len(nrow(munched)), munched$group, FUN = length)
     munched <- munched[rows >= 2, ]
     if (nrow(munched) < 2) {
       return(zeroGrob())
     }
 
-    # New behaviour
-    ## Convert x and y to units
-    x <- unit(munched$x, "npc")
-    y <- unit(munched$y, "npc")
+    munched <- transform(munched,
+                         xend = c(tail(x, -1), NA),
+                         yend = c(tail(y, -1), NA),
+                         keep = c(group[-1] == head(group, -1), FALSE))
+    munched <- munched[munched$keep, ]
 
-    ## Work out grouping variables for grobs
-    n <- nrow(munched)
-    group_diff <- munched$group[-1] != munched$group[-n]
-    start <- c(TRUE, group_diff)
-    end <- c(group_diff, TRUE)
-
-    ## Make custom grob class
     my_path <- grid::grob(
-      x = x, y = y,
-      mult = munched$gap * .pt,
+      x0 = unit(munched$x, "npc"), x1 = unit(munched$xend, "npc"),
+      y0 = unit(munched$y, "npc"), y1 = unit(munched$yend, "npc"),
+      mult = (munched$size * .pt + munched$stroke * .stroke / 2) * munched$gap,
       name = "trail",
       gp = grid::gpar(
-        col = alpha(munched$colour, munched$alpha)[!end],
-        fill = alpha(munched$colour, munched$alpha)[!end],
+        col = alpha(munched$colour, munched$alpha),
+        fill = alpha(munched$colour, munched$alpha),
         lwd = munched$linesize * .pt,
         lty = munched$linetype,
         lineend = "butt",
@@ -161,62 +127,62 @@ GeomTrail <- ggplot2::ggproto(
         linemitre = 10
       ),
       vp = NULL,
-      ### Now this is the important bit:
-      cl= "trail"
+      cl = "trail"
     )
 
-    ## Combine grobs
     ggplot2:::ggname(
       "geom_trail",
       grid::grobTree(my_path, my_points)
     )
-  }
+  },
+  non_missing_aes = c("size", "colour")
 )
-
 
 #' grid draw method geom trail
 #' @description underlying drawing method for paths in geom_trail
-#' @rdname makeContent_trail
+#' @rdname makeContext.trail
 #' @author Teun van den Brand
 #' @import grid
 #' @importFrom utils head
 #' @param x grob object passed to method
 #' @export
 
-makeContent.trail <- function(x){
-  # Make hook for drawing
+makeContext.trail <- function(x) {
   # Convert npcs to absolute units
-  x_new <- grid::convertX(x$x, "mm", TRUE)
-  y_new <- grid::convertY(x$y, "mm", TRUE)
+  x0 <- grid::convertX(x$x0, "mm", TRUE)
+  y0 <- grid::convertY(x$y0, "mm", TRUE)
+  x1 <- grid::convertX(x$x1, "mm", TRUE)
+  y1 <- grid::convertY(x$y1, "mm", TRUE)
 
   # Do trigonometry stuff
-  hyp <- sqrt(diff(x_new)^2 + diff(y_new)^2)
-  sin_plot <- diff(y_new) / hyp
-  cos_plot <- diff(x_new) / hyp
+  dx <- x1 - x0
+  dy <- y1 - y0
+  hyp <- sqrt(dx ^ 2 + dy ^ 2)
+  nudge_y <- (dy / hyp) * x$mult
+  nudge_x <- (dx / hyp) * x$mult
 
-  diff_x0_seg <- head(x$mult, -1) * cos_plot
-  diff_x1_seg <- (hyp - head(x$mult, -1)) * cos_plot
-  diff_y0_seg <- head(x$mult, -1) * sin_plot
-  diff_y1_seg <- (hyp - head(x$mult, -1)) * sin_plot
+  # Calculate new positions
+  x0 <- x0 + nudge_x
+  x1 <- x1 - nudge_x
+  y0 <- y0 + nudge_y
+  y1 <- y1 - nudge_y
 
-  x0 = head(x_new, -1) + diff_x0_seg
-  x1 = head(x_new, -1) + diff_x1_seg
-  y0 = head(y_new, -1) + diff_y0_seg
-  y1 = head(y_new, -1) + diff_y1_seg
-  keep <- unclass(x0) < unclass(x1)
-
-  # Remove old xy coordinates
-  x$x <- NULL
-  x$y <- NULL
+  # Filter overshoot
+  keep <- (sign(dx) == sign(x1 - x0)) & (sign(dy) == sign(y1 - y0))
+  x$gp[] <- lapply(x$gp, function(x) {
+    if (length(x) == 1L) return(x) else x[keep]
+  })
 
   # Supply new xy coordinates
-  x$x0 <- unit(x0, "mm")[keep]
-  x$x1 <- unit(x1, "mm")[keep]
-  x$y0 <- unit(y0, "mm")[keep]
-  x$y1 <- unit(y1, "mm")[keep]
+  x$x0 <- unit(x0[keep], "mm")
+  x$x1 <- unit(x1[keep], "mm")
+  x$y0 <- unit(y0[keep], "mm")
+  x$y1 <- unit(y1[keep], "mm")
 
   # Set to segments class
-  class(x)[1] <- 'segments'
+  x$mult <- NULL
+  x$id <- NULL
+  class(x)[1] <- "segments"
   x
 }
 

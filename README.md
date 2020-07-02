@@ -94,7 +94,17 @@ p <-
     p + geom_trail(aes(group = age_cut10), size = 0) +
         geom_text(aes(label = round(mean_va, 0)), show.legend = FALSE)
 
-<img src="man/figures/README-unnamed-chunk-2-1.png" width="45%" /><img src="man/figures/README-unnamed-chunk-2-2.png" width="45%" />
+``` r
+library(patchwork)
+p1 <- p + geom_trail(aes(group = age_cut10), gap = .5)
+
+p2 <- p + geom_trail(aes(group = age_cut10), gap = .4,shape = NA, show.legend = FALSE) +
+  geom_text(aes(label = round(mean_va, 0)), size = 5/14*8, show.legend = FALSE)
+
+p1+p2 +plot_layout(guides = "collect") &theme(legend.position = "bottom")
+```
+
+<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
 ## An extended brewer scale for binned scales
 
