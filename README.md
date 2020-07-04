@@ -57,12 +57,9 @@ p <-
   )
 ```
 
-    p + geom_trail(aes(group = age_cut10))
-    
-    p + geom_trail(aes(group = age_cut10), type = "text", size = 8*5/14, gap = .3)
-
 ``` r
 library(patchwork)
+
 p1 <- p + geom_trail(aes(group = age_cut10), gap = .5)
 
 p2 <- p + geom_trail(aes(group = age_cut10, label = round(mean_va)), type = "text", size = 8*5/14, gap = .3, show.legend = FALSE)
