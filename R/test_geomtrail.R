@@ -18,7 +18,10 @@ testdf <- structure(list(A = c("(75,85", "(75,85", "(75,85", "(75,85",
                                                                                                                                                          "tbl", "data.frame"))
 
 p <-  testdf %>% arrange(A,B) %>%
-  ggplot( aes(B, C, color = A))
-p1 <- p + geom_trail(aes(group = A))
+  ggplot( aes(B, C, color = A, group = A))
+ p + geom_trail(aes( label = round(C,1)),
+                type = "text", size = 8*5/14,
+                gap = .3)
+ p + geom_trail(type = "point")
 
-p1+p1
+

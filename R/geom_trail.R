@@ -5,9 +5,11 @@
 #' points (see examples).
 #' @name geom_trail
 #' @import ggplot2
+#' @inheritParams ggplot2::layer
 #' @inheritParams ggplot2::geom_point
-#' @section Additional arguments:
-#' **`gap`** gap between points and lines
+#' @inheritParams ggplot2::geom_text
+#' @param gap between points and lines
+#' @param type "point" (default) or "text".
 #' @section Aesthetics:
 #' `geom_trail` understands the following aesthetics (required aesthetics
 #' are in bold):
@@ -17,15 +19,22 @@
 #'   - `alpha`
 #'   - `color`
 #'   - `linetype`
-#'   - `size` size of points - 0 for empty space
+#'   - `size` when type = "text", needs adjustment.
+#'      Recommend desired font-size value times 4/15
 #'   - `linesize`
+#'   - **(`label`)** required when type = "text"
 #' @examples
 #' library(ggplot2)
 #' library(dplyr)
+#' library(eye)
 #'
 #' ggplot(pressure, aes(temperature, pressure)) +
 #'   geom_ribbon(aes(ymin = pressure - 50, ymax = pressure + 50), alpha = 0.2) +
 #'   geom_trail()
+#'
+#' ggplot(pressure, aes(temperature, pressure)) +
+#'   geom_ribbon(aes(ymin = pressure - 50, ymax = pressure + 50), alpha = 0.2) +
+#'   geom_trail(type = "text", size = 8*5/14)
 #'
 #' amd_aggr <-
 #' amd %>%
@@ -44,8 +53,9 @@
 #'
 #' p + geom_trail(aes(group = age_cut10))
 #'
-#' p + geom_trail(aes(group = age_cut10), size = 0) +
-#'   geom_text(aes(label = round(mean_va, 0)), show.legend = FALSE)
+#' p +
+#'   geom_trail(aes(group = age_cut10, label = round(mean_va)),
+#'              type = "text", size = 8*5/14, gap = .3)
 #' @seealso
 #' The geom was modified from the suggestion by user teunbrand on
 #' Stackoverflow in
@@ -54,10 +64,14 @@
 
 geom_trail <-
   function (mapping = NULL, data = NULL, stat = "identity", position = "identity",
-            na.rm = FALSE, show.legend = NA, inherit.aes = TRUE, ...) {
+            na.rm = FALSE, show.legend = NA, inherit.aes = TRUE, type = "point",
+            parse = FALSE,  check_overlap = FALSE, ...) {
     layer(data = data, mapping = mapping, stat = stat, geom = GeomTrail,
-          position = position, show.legend = show.legend, inherit.aes = inherit.aes,
-          params = list(na.rm = na.rm, ...))
+          position = position, show.legend = show.legend,
+           inherit.aes = inherit.aes,
+          params = list(na.rm = na.rm,
+                        parse = parse, type = type,
+                        check_overlap = check_overlap, ...))
   }
 
 #' @rdname geom_trail
@@ -73,21 +87,21 @@ GeomTrail <- ggplot2::ggproto(
   "GeomTrail", ggplot2::GeomPoint,
 
   default_aes = ggplot2::aes(
-    shape = 19, colour = "black", size = 1.5, fill = NA, alpha = NA, stroke = 0.5,
-    linesize = 0.5, linetype = 1, gap = .9,
+    shape = 19, colour = "black", gap = .9, size = 1.5, fill = NA,
+    alpha = NA, stroke = 0.5,
+    linesize = 0.5, linetype = 1, label = NA, angle = 0,
+    hjust = 0.5, vjust = 0.5, family = "", fontface = 1, lineheight = 1.2
   ),
 
-  draw_panel = function(self, data, panel_params, coord, arrow = NULL,
+
+  draw_panel = function(self, data, panel_params, coord, arrow = NULL, type,
+                        parse, check_overlap,
                         lineend = "butt", linejoin = "round", linemitre = 10,
                         na.rm = FALSE) {
     if (!anyDuplicated(data$group)) {
-      message_wrap("geom_path: Each group consists of only one observation. ",
+      ggplot2:::message_wrap("geom_path: Each group consists of only one observation. ",
                    "Do you need to adjust the group aesthetic?")
     }
-
-    ##must be sorted on group
-    data <- data[order(data$group), , drop = FALSE]
-    munched <- coord_munch(coord, data, panel_params)
 
     ##Default geom point behaviour
     if (is.character(data$shape)) {
@@ -95,16 +109,25 @@ GeomTrail <- ggplot2::ggproto(
     }
     coords <- coord$transform(data, panel_params)
 
-    my_points <- ggproto_parent(GeomPoint, self)$draw_panel(
+    my_points <-
+      switch(type, point = ggproto_parent(GeomPoint, self)$draw_panel(
       data, panel_params, coord, na.rm = na.rm
+    ), text = ggproto_parent(GeomText, self)$draw_panel(
+      data, panel_params, coord, na.rm = na.rm,
+      parse = parse, check_overlap = check_overlap
     )
+      )
+    ##must be sorted on group
+    data <- data[order(data$group), , drop = FALSE]
+    munched <- coord_munch(coord, data, panel_params)
 
     ##Silently drop lines with less than two points, preserving order
     rows <- stats::ave(seq_len(nrow(munched)), munched$group, FUN = length)
     munched <- munched[rows >= 2, ]
+
     if (nrow(munched) < 2) {
-      return(zeroGrob())
-    }
+      my_path <- zeroGrob()
+    } else {
 
     munched <- transform(munched,
                          xend = c(tail(x, -1), NA),
@@ -129,7 +152,7 @@ GeomTrail <- ggplot2::ggproto(
       vp = NULL,
       cl = "trail"
     )
-
+}
     ggplot2:::ggname(
       "geom_trail",
       grid::grobTree(my_path, my_points)

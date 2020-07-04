@@ -3,6 +3,7 @@
 \name{scale_craftbrewer}
 \alias{scale_craftbrewer}
 \alias{scale_fill_craftfermenter}
+\alias{scale_color_craftfermenter}
 \title{Extended brewer palettes}
 \usage{
 scale_fill_craftfermenter(
@@ -14,6 +15,16 @@ scale_fill_craftfermenter(
   guide = "coloursteps",
   aesthetics = "fill"
 )
+
+scale_color_craftfermenter(
+  ...,
+  type = "seq",
+  palette = 1,
+  direction = -1,
+  na.value = "grey50",
+  guide = "coloursteps",
+  aesthetics = "color"
+)
 }
 \arguments{
 \item{type}{one of "seq", "div" or "qual"}
@@ -23,6 +34,8 @@ scale_fill_craftfermenter(
 \item{direction}{reverses direction, 1 or -1}
 }
 \description{
+extended brewer palettes
+
 extended brewer palettes
 }
 \examples{

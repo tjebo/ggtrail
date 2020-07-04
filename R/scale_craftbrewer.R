@@ -27,6 +27,18 @@ scale_fill_craftfermenter <- function(..., type = "seq", palette = 1, direction 
   binned_scale(aesthetics, "craftfermenter", binned_pal(craftbrewer_pal(type, palette, direction)), na.value = na.value, guide = guide, ...)
 }
 
+#' @rdname scale_craftbrewer
+#' @description extended brewer palettes
+#' @export
+
+scale_color_craftfermenter <- function(..., type = "seq", palette = 1, direction = -1, na.value = "grey50", guide = "coloursteps", aesthetics = "color") {
+  type <- match.arg(type, c("seq", "div", "qual"))
+  if (type == "qual") {
+    warn("Using a discrete colour palette in a binned scale.\n  Consider using type = \"seq\" or type = \"div\" instead")
+  }
+  binned_scale(aesthetics, "craftfermenter", binned_pal(craftbrewer_pal(type, palette, direction)), na.value = na.value, guide = guide, ...)
+}
+
 #' Extended brewer palettes
 #' @description extended brewer palettes
 #' @param type one of "seq", "div" or "qual"

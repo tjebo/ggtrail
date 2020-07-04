@@ -69,10 +69,10 @@ library(eye)
 amd_aggr <-
   amd %>%
   group_by(
-    age_cut10 = cut_width(BaselineAge, 10),
-    days_cut90 = cut_width(FollowupDays, 90, labels = seq(0, 810, 90))
+    age_cut10 = cut_width(age0, 10),
+    days_cut90 = cut_width(time, 90, labels = seq(0, 810, 90))
   ) %>%
-  summarise(mean_va = mean(VA_ETDRS_Letters)) %>%
+  summarise(mean_va = mean(va)) %>%
   filter(as.integer(days_cut90) <= 9)
 ```
 
@@ -91,17 +91,16 @@ p <-
 
     p + geom_trail(aes(group = age_cut10))
     
-    p + geom_trail(aes(group = age_cut10), size = 0) +
-        geom_text(aes(label = round(mean_va, 0)), show.legend = FALSE)
+    p + geom_trail(aes(group = age_cut10), type = "text", size = 8*5/14, gap = .3)
 
 ``` r
 library(patchwork)
 p1 <- p + geom_trail(aes(group = age_cut10), gap = .5)
 
-p2 <- p + geom_trail(aes(group = age_cut10), gap = .4,shape = NA, show.legend = FALSE) +
-  geom_text(aes(label = round(mean_va, 0)), size = 5/14*8, show.legend = FALSE)
+p2 <- p + geom_trail(aes(group = age_cut10, label = round(mean_va)), type = "text", size = 8*5/14, gap = .3, show.legend = FALSE)
 
-p1+p2 +plot_layout(guides = "collect") &theme(legend.position = "bottom")
+p1+p2 +plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
 ```
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />

@@ -17,6 +17,9 @@ geom_trail(
   na.rm = FALSE,
   show.legend = NA,
   inherit.aes = TRUE,
+  type = "point",
+  parse = FALSE,
+  check_overlap = FALSE,
   ...
 )
 
@@ -63,21 +66,28 @@ rather than combining with them. This is most useful for helper functions
 that define both data and aesthetics and shouldn't inherit behaviour from
 the default plot specification, e.g. \code{\link[ggplot2:borders]{borders()}}.}
 
+\item{type}{"point" (default) or "text".}
+
+\item{parse}{If \code{TRUE}, the labels will be parsed into expressions and
+displayed as described in \code{?plotmath}.}
+
+\item{check_overlap}{If \code{TRUE}, text that overlaps previous text in the
+same layer will not be plotted. \code{check_overlap} happens at draw time and in
+the order of the data. Therefore data should be arranged by the label
+column before calling \code{geom_label()} or \code{geom_text()}.}
+
 \item{...}{Other arguments passed on to \code{\link[ggplot2:layer]{layer()}}. These are
 often aesthetics, used to set an aesthetic to a fixed value, like
 \code{colour = "red"} or \code{size = 3}. They may also be parameters
 to the paired geom/stat.}
+
+\item{gap}{between points and lines}
 }
 \description{
 Mark a trail with a plot just like the base plot type = "b".
 You can also leave the dots blank, thus allowing use of text instead of
 points (see examples).
 }
-\section{Additional arguments}{
-
-\strong{\code{gap}} gap between points and lines
-}
-
 \section{Aesthetics}{
 
 \code{geom_trail} understands the following aesthetics (required aesthetics
@@ -88,18 +98,25 @@ are in bold):
 \item \code{alpha}
 \item \code{color}
 \item \code{linetype}
-\item \code{size} size of points - 0 for empty space
+\item \code{size} when type = "text", needs adjustment.
+Recommend desired font-size value times 4/15
 \item \code{linesize}
+\item \strong{(\code{label})} required when type = "text"
 }
 }
 
 \examples{
 library(ggplot2)
 library(dplyr)
+library(eye)
 
 ggplot(pressure, aes(temperature, pressure)) +
   geom_ribbon(aes(ymin = pressure - 50, ymax = pressure + 50), alpha = 0.2) +
   geom_trail()
+
+ggplot(pressure, aes(temperature, pressure)) +
+  geom_ribbon(aes(ymin = pressure - 50, ymax = pressure + 50), alpha = 0.2) +
+  geom_trail(type = "text", size = 8*5/14)
 
 amd_aggr <-
 amd \%>\%
@@ -118,8 +135,9 @@ p <- ggplot(amd_aggr, aes(days_cut90, mean_va, color = age_cut10)) +
 
 p + geom_trail(aes(group = age_cut10))
 
-p + geom_trail(aes(group = age_cut10), size = 0) +
-  geom_text(aes(label = round(mean_va, 0)), show.legend = FALSE)
+p +
+  geom_trail(aes(group = age_cut10, label = round(mean_va)),
+             type = "text", size = 8*5/14, gap = .3)
 }
 \seealso{
 The geom was modified from the suggestion by user teunbrand on
