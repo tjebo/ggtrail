@@ -7,10 +7,14 @@
 
 <!-- badges: end -->
 
-### geom\_trail
+## Features
 
-A base plot type = “b” equivalent for ggplot. Works also with text\!
-\#\# Installation
+  - **geom\_trail**: A base plot type = “b” equivalent for ggplot. Works
+    also with text\!
+  - **scale\_aes\_craftfermenter**: Extended brewer scales for binned
+    scales (for color and fill aesthetic).
+
+## Installation
 
 You can install the development version from
 [GitHub](https://github.com/) with:
@@ -20,43 +24,7 @@ You can install the development version from
 devtools::install_github("tjebo/ggtrail")
 ```
 
-## Example
-
-## geom\_trail
-
-A base plot type = “b” equivalent for ggplot. Works also with text\!
-
-This readme is not meant to dive into detail how to use `ggplot2`, an
-amazing package which allows for very creative data visualization in a
-fairly user-friendly manner. A good place to start learning about
-ggplot2 is <http://www.cookbook-r.com/Graphs/>
-
-The following it an example of how to use `geom_trail` in the context of
-the inbuilt data set `amd`.
-
-First, the data needs to be prepared. I often find that especially
-rather inexperienced users hesitate to manipulate / shape their data
-before doing any visualization or analysis.
-
-However, there is really no need to fret. It is an often very important
-and necessary step. Actually, it can make your life much easier. And if
-you follow simple precautions, you can not cause much damage to your
-actual raw data.
-
-(**Those simple precautions are**: Do not use functions in your script
-or report which write a file on your disk. This may easily overwrite
-your raw data\! E.g. `write.csv` and friends should be used only with
-utmost care.)
-
-Any wrong assignments where you may need to rerun your scripts can be
-annoying, but are in itself not detrimental (provided your scripts are
-sound).
-
-On this note, I recommend to always start in a fresh session and to make
-sure that your script does not rely on objects that have not been
-correctly created. This is another advantage of using rmarkdown:
-Knitting your script to a report makes you aware of inconsistencies in
-your script.
+### Examples
 
 <details>
 
@@ -124,3 +92,37 @@ ggplot(mtcars, aes(mpg, disp, fill = hp)) +
 ```
 
 <img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+
+## About reproducible scripts, and using ggplot2
+
+This readme is not meant to dive into detail how to use `ggplot2`, an
+amazing package which allows for very creative data visualization in a
+fairly user-friendly manner. A good place to start learning about
+ggplot2 is <http://www.cookbook-r.com/Graphs/>
+
+The following it an example of how to use `geom_trail` in the context of
+the inbuilt data set `amd`.
+
+First, the data needs to be prepared. I often find that especially
+rather inexperienced users hesitate to manipulate / shape their data
+before doing any visualization or analysis.
+
+However, there is really no need to fret. It is an often very important
+and necessary step. Actually, it can make your life much easier. And if
+you follow simple precautions, you can not cause much damage to your
+actual raw data.
+
+(**Those simple precautions are**: Do not use functions in your script
+or report which write a file on your disk. This may easily overwrite
+your raw data\! E.g. `write.csv` and friends should be used only with
+utmost care.)
+
+Any wrong assignments where you may need to rerun your scripts can be
+annoying, but are in itself not detrimental (provided your scripts are
+sound).
+
+On this note, I recommend to always start in a fresh session and to make
+sure that your script does not rely on objects that have not been
+correctly created. This is another advantage of using rmarkdown:
+Knitting your script to a report makes you aware of inconsistencies in
+your script.
