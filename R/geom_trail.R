@@ -103,9 +103,7 @@ GeomTrail <- ggplot2::ggproto(
     )
     if (any(!is.na(new_data$label))) {
       if(is.null(params$size)){
-        # Scale to GeomText defaults
         new_data$size <- 8* 1/.pt
-        new_data$gap <- 0.3
       } else {
         new_data$size <- params$size * 1/.pt
       }
@@ -175,7 +173,7 @@ GeomTrail <- ggplot2::ggproto(
     text = grid::grob(
       x0 = unit(munched$x, "npc"), x1 = unit(munched$xend, "npc"),
       y0 = unit(munched$y, "npc"), y1 = unit(munched$yend, "npc"),
-      mult = munched$size  * munched$gap,
+      mult = munched$size * munched$gap * .pt,
       name = "trail",
       gp = grid::gpar(
         col = alpha(munched$colour, munched$alpha),
