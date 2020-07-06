@@ -6,7 +6,7 @@
 \alias{GeomTrail}
 \title{geom_trail}
 \format{
-An object of class \code{GeomTrail} (inherits from \code{GeomPoint}, \code{Geom}, \code{ggproto}, \code{gg}) of length 4.
+An object of class \code{GeomTrail} (inherits from \code{GeomPoint}, \code{Geom}, \code{ggproto}, \code{gg}) of length 5.
 }
 \usage{
 geom_trail(
@@ -81,7 +81,8 @@ often aesthetics, used to set an aesthetic to a fixed value, like
 \code{colour = "red"} or \code{size = 3}. They may also be parameters
 to the paired geom/stat.}
 
-\item{gap}{between points and lines}
+\item{gap}{between points and lines, default 0.7 for type = "point"
+and 0.4 for type = "text}
 }
 \description{
 Mark a trail with a plot just like the base plot type = "b".
@@ -98,8 +99,11 @@ are in bold):
 \item \code{alpha}
 \item \code{color}
 \item \code{linetype}
-\item \code{size} when type = "text", needs adjustment.
-Recommend desired font-size value times 4/15
+\item \code{size} when type = "text", default to font size of 10pt. Size for points
+uses ggplot somewhat weird point sizes. Size for text uses factor
+\itemize{
+\item 5/14 in order to result in font size (in pt)
+}
 \item \code{linesize}
 \item \strong{(\code{label})} required when type = "text"
 }

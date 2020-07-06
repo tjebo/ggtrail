@@ -8,7 +8,8 @@
 #' @inheritParams ggplot2::layer
 #' @inheritParams ggplot2::geom_point
 #' @inheritParams ggplot2::geom_text
-#' @param gap between points and lines
+#' @param gap between points and lines, default 0.7 for type = "point"
+#'     and 0.4 for type = "text
 #' @param type "point" (default) or "text".
 #' @section Aesthetics:
 #' `geom_trail` understands the following aesthetics (required aesthetics
@@ -19,8 +20,9 @@
 #'   - `alpha`
 #'   - `color`
 #'   - `linetype`
-#'   - `size` when type = "text", needs adjustment.
-#'      Recommend desired font-size value times 4/15
+#'   - `size` when type = "text", default to font size of 10pt. Size for points
+#'      uses ggplot somewhat weird point sizes. Size for text uses factor
+#'      * 5/14 in order to result in font size (in pt)
 #'   - `linesize`
 #'   - **(`label`)** required when type = "text"
 #' @examples
@@ -86,14 +88,31 @@ geom_trail <-
 GeomTrail <- ggplot2::ggproto(
   "GeomTrail", ggplot2::GeomPoint,
 
+
   default_aes = ggplot2::aes(
-    shape = 19, colour = "black", gap = .9, size = 1.5, fill = NA,
+    shape = 19, colour = "black", gap = .7, size = 1.5, fill = NA,
     alpha = NA, stroke = 0.5,
     linesize = 0.5, linetype = 1, label = NA, angle = 0,
     hjust = 0.5, vjust = 0.5, family = "", fontface = 1, lineheight = 1.2
   ),
 
+  use_defaults = function(self, data, params = list(), modifiers = aes()) {
 
+    new_data <- ggproto_parent(GeomPath, self)$use_defaults(
+      data, params, modifiers
+    )
+    if (any(!is.na(new_data$label))) {
+      if(is.null(params$size)){
+        # Scale to GeomText defaults
+        new_data$size <- 8* 1/.pt
+        new_data$gap <- 0.3
+      } else {
+        new_data$size <- params$size * 1/.pt
+      }
+    }
+    new_data
+    # browser()
+  },
   draw_panel = function(self, data, panel_params, coord, arrow = NULL, type,
                         parse, check_overlap,
                         lineend = "butt", linejoin = "round", linemitre = 10,
@@ -135,7 +154,8 @@ GeomTrail <- ggplot2::ggproto(
                          keep = c(group[-1] == head(group, -1), FALSE))
     munched <- munched[munched$keep, ]
 
-    my_path <- grid::grob(
+    my_path <- switch(type,
+      point = grid::grob(
       x0 = unit(munched$x, "npc"), x1 = unit(munched$xend, "npc"),
       y0 = unit(munched$y, "npc"), y1 = unit(munched$yend, "npc"),
       mult = (munched$size * .pt + munched$stroke * .stroke / 2) * munched$gap,
@@ -151,6 +171,24 @@ GeomTrail <- ggplot2::ggproto(
       ),
       vp = NULL,
       cl = "trail"
+    ),
+    text = grid::grob(
+      x0 = unit(munched$x, "npc"), x1 = unit(munched$xend, "npc"),
+      y0 = unit(munched$y, "npc"), y1 = unit(munched$yend, "npc"),
+      mult = munched$size  * munched$gap,
+      name = "trail",
+      gp = grid::gpar(
+        col = alpha(munched$colour, munched$alpha),
+        fill = alpha(munched$colour, munched$alpha),
+        lwd = munched$linesize * .pt,
+        lty = munched$linetype,
+        lineend = "butt",
+        linejoin = "round",
+        linemitre = 10
+      ),
+      vp = NULL,
+      cl = "trail"
+    )
     )
 }
     ggplot2:::ggname(

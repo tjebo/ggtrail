@@ -34,6 +34,8 @@ devtools::install_github("tjebo/ggtrail")
 ```
 ### Examples
 
+The following it an example of how to use `geom_trail` in the context of the `amd` data set from the `eye` package.
+
 <details>
 <summary>Prepare AMD data for plot (click to unfold) </summary>
 
@@ -68,9 +70,13 @@ library(patchwork)
 
 p1 <- p + geom_trail(aes(group = age_cut10), gap = .5)
 
-p2 <- p + geom_trail(aes(group = age_cut10, label = round(mean_va)), type = "text", size = 8*5/14, gap = .3, show.legend = FALSE)
+p2 <- p + 
+  geom_trail(aes(group = age_cut10, label = round(mean_va)), 
+             type = "text", 
+             show.legend = FALSE, gap = .3)
 
-p1+p2 +plot_layout(guides = "collect") &
+p1 + p2 +
+  plot_layout(guides = "collect") &
   theme(legend.position = "bottom")
 ```
 
@@ -92,8 +98,6 @@ ggplot(mtcars, aes(mpg, disp, fill = hp)) +
 ## About reproducible scripts, and using ggplot2
 This readme is not meant to dive into detail how to use `ggplot2`, an amazing package which allows for very creative data visualization in a fairly user-friendly manner. A good place to start learning about ggplot2 is http://www.cookbook-r.com/Graphs/
 
-The following it an example of how to use `geom_trail` in the context of the inbuilt data set `amd`.
-
 First, the data needs to be prepared. I often find that especially rather inexperienced users hesitate to manipulate / shape their data before doing any visualization or analysis. 
 
 However, there is really no need to fret. It is an often very important and necessary step. Actually, it can make your life much easier. And if you follow simple precautions, you can not cause much damage to your actual raw data. 
@@ -103,8 +107,4 @@ However, there is really no need to fret. It is an often very important and nece
 Any wrong assignments where you may need to rerun your scripts can be annoying, but are in itself not detrimental (provided your scripts are sound).
 
 On this note, I recommend to always start in a fresh session and to make sure that your script does not rely on objects that have not been correctly created. This is another advantage of using rmarkdown: Knitting your script to a report makes you aware of inconsistencies in your script. 
-
-
-
-
 

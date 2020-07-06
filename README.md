@@ -26,6 +26,9 @@ devtools::install_github("tjebo/ggtrail")
 
 ### Examples
 
+The following it an example of how to use `geom_trail` in the context of
+the `amd` data set from the `eye` package.
+
 <details>
 
 <summary>Prepare AMD data for plot (click to unfold) </summary>
@@ -62,9 +65,13 @@ library(patchwork)
 
 p1 <- p + geom_trail(aes(group = age_cut10), gap = .5)
 
-p2 <- p + geom_trail(aes(group = age_cut10, label = round(mean_va)), type = "text", size = 8*5/14, gap = .3, show.legend = FALSE)
+p2 <- p + 
+  geom_trail(aes(group = age_cut10, label = round(mean_va)), 
+             type = "text", 
+             show.legend = FALSE, gap = .3)
 
-p1+p2 +plot_layout(guides = "collect") &
+p1 + p2 +
+  plot_layout(guides = "collect") &
   theme(legend.position = "bottom")
 ```
 
@@ -96,9 +103,6 @@ This readme is not meant to dive into detail how to use `ggplot2`, an
 amazing package which allows for very creative data visualization in a
 fairly user-friendly manner. A good place to start learning about
 ggplot2 is <http://www.cookbook-r.com/Graphs/>
-
-The following it an example of how to use `geom_trail` in the context of
-the inbuilt data set `amd`.
 
 First, the data needs to be prepared. I often find that especially
 rather inexperienced users hesitate to manipulate / shape their data
