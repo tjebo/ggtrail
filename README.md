@@ -35,10 +35,10 @@ the `amd` data set from the `eye` package.
 
 ``` r
 library(tidyverse)
-library(eye)
+library(eyedata)
 
 amd_aggr <-
-  amd %>%
+  amd2 %>%
   group_by(
     age_cut10 = cut_width(age0, 10),
     days_cut90 = cut_width(time, 90, labels = seq(0, 810, 90))
@@ -73,6 +73,9 @@ p2 <- p +
 p1 + p2 +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom")
+#> Warning: Removed 2 rows containing missing values (geom_trail).
+
+#> Warning: Removed 2 rows containing missing values (geom_trail).
 ```
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
@@ -96,6 +99,20 @@ ggplot(mtcars, aes(mpg, disp, fill = hp)) +
 ```
 
 <img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+
+## Common scale for both x and y in one call
+
+``` r
+x <- y <- 0:10
+mydat <- data.frame(x, y)
+
+ggplot(mydat, aes(x, y)) +
+  geom_point() +
+  scale_axis_continuous(expand = c(0, NA), breaks = 2:10) +
+  theme_classic()
+```
+
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
 
 ## About reproducible scripts, and using ggplot2
 

@@ -41,10 +41,10 @@ The following it an example of how to use `geom_trail` in the context of the `am
 
 ```{r trail, message=FALSE}
 library(tidyverse)
-library(eye)
+library(eyedata)
 
 amd_aggr <-
-  amd %>%
+  amd2 %>%
   group_by(
     age_cut10 = cut_width(age0, 10),
     days_cut90 = cut_width(time, 90, labels = seq(0, 810, 90))
@@ -93,6 +93,17 @@ ggplot(mtcars, aes(mpg, disp, fill = hp)) +
     guide =  guide_colorsteps(even.steps = FALSE, # workaround for issues #4019/#4100
                              barheight = 15) 
   )
+```
+
+## Common scale for both x and y in one call
+```{r}
+x <- y <- 0:10
+mydat <- data.frame(x, y)
+
+ggplot(mydat, aes(x, y)) +
+  geom_point() +
+  scale_axis_continuous(expand = c(0, NA), breaks = 2:10) +
+  theme_classic()
 ```
 
 ## About reproducible scripts, and using ggplot2

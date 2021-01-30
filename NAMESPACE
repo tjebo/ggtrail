@@ -3,6 +3,8 @@
 S3method(makeContext,trail)
 export(GeomTrail)
 export(geom_trail)
+export(scale_axis_continuous)
+export(scale_axis_discrete)
 export(scale_color_craftfermenter)
 export(scale_fill_craftfermenter)
 export(standardise_aes_names)
