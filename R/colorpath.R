@@ -1,6 +1,8 @@
 #' geom_colorpath
 #' @description lines with alternating color "just for the effect".
 #' @name colorpath
+#' @seealso Stackoverflow thread https://stackoverflow.com/a/70759994/7941188
+#'   Thanks to user Henrik for help to create segments
 #' @examples
 #' air_df <- data.frame(x = 1: length(AirPassengers), y = c(AirPassengers))
 #'
