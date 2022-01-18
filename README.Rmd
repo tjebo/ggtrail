@@ -37,26 +37,39 @@ devtools::install_github("tjebo/ggtrail")
 ### Examples
 #### geom_colorpath
 ```{r geom_colorpath}
-air_df <- data.frame(x = 1: length(AirPassengers), y = c(AirPassengers))
-
-ggplot(air_df, aes(x, y)) +
-  geom_colorpath(cols = c("red", "blue", "green"))
+library(patchwork)
 
 dat <- data.frame(x = seq(2,10, 2), y = seq(4,20, 4))
 
 p1 <- ggplot(dat, aes(x = x, y = y)) +
-  geom_colorpath()
+  geom_colorpath()+
+  ggtitle("Default colors")
 
 p2 <- ggplot(dat, aes(x, y)) +
-  geom_colorpath(cols = c("red", "blue"))
+  geom_colorpath(cols = c("red", "blue"))+
+  ggtitle("Two colors")
 
 p3 <- ggplot(dat, aes(x, y)) +
-  geom_colorpath(cols = c("red", "blue", "green"))
+  geom_colorpath(cols = c("red", "blue", "green"))+
+  ggtitle("Three colors")
 
 p4 <- ggplot(dat, aes(x, y)) +
-  geom_colorpath(cols = c("red", "blue", "green", "white"))
+  geom_colorpath(cols = c("red", "blue", "green", "white"))+
+  ggtitle("Four colors")
 
-patchwork::wrap_plots(mget(ls(pattern = "p[1-9]")))
+wrap_plots(mget(ls(pattern = "p[1-9]")))
+
+air_df <- data.frame(x = 1: length(AirPassengers), y = c(AirPassengers))
+
+a1 <- ggplot(air_df, aes(x, y)) +
+  geom_colorpath(cols = c("red", "blue", "green"))+
+  ggtitle("Works also with more complex curves")
+
+a2 <- ggplot(air_df, aes(x, y)) +
+  geom_colorpath(cols = c("red", "blue", "green"), n_seg = 150)+
+  ggtitle("... more color segments")
+
+a1 / a2
 ```
 
 #### An extended brewer scale for binned scales

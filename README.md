@@ -30,30 +30,43 @@ devtools::install_github("tjebo/ggtrail")
 #### geom\_colorpath
 
 ``` r
-air_df <- data.frame(x = 1: length(AirPassengers), y = c(AirPassengers))
+library(patchwork)
 
-ggplot(air_df, aes(x, y)) +
-  geom_colorpath(cols = c("red", "blue", "green"))
+dat <- data.frame(x = seq(2,10, 2), y = seq(4,20, 4))
+
+p1 <- ggplot(dat, aes(x = x, y = y)) +
+  geom_colorpath()+
+  ggtitle("Default colors")
+
+p2 <- ggplot(dat, aes(x, y)) +
+  geom_colorpath(cols = c("red", "blue"))+
+  ggtitle("Two colors")
+
+p3 <- ggplot(dat, aes(x, y)) +
+  geom_colorpath(cols = c("red", "blue", "green"))+
+  ggtitle("Three colors")
+
+p4 <- ggplot(dat, aes(x, y)) +
+  geom_colorpath(cols = c("red", "blue", "green", "white"))+
+  ggtitle("Four colors")
+
+wrap_plots(mget(ls(pattern = "p[1-9]")))
 ```
 
 <img src="man/figures/README-geom_colorpath-1.png" width="100%" />
 
 ``` r
-dat <- data.frame(x = seq(2,10, 2), y = seq(4,20, 4))
+air_df <- data.frame(x = 1: length(AirPassengers), y = c(AirPassengers))
 
-p1 <- ggplot(dat, aes(x = x, y = y)) +
-  geom_colorpath()
+a1 <- ggplot(air_df, aes(x, y)) +
+  geom_colorpath(cols = c("red", "blue", "green"))+
+  ggtitle("Works also with more complex curves")
 
-p2 <- ggplot(dat, aes(x, y)) +
-  geom_colorpath(cols = c("red", "blue"))
+a2 <- ggplot(air_df, aes(x, y)) +
+  geom_colorpath(cols = c("red", "blue", "green"), n_seg = 150)+
+  ggtitle("... more color segments")
 
-p3 <- ggplot(dat, aes(x, y)) +
-  geom_colorpath(cols = c("red", "blue", "green"))
-
-p4 <- ggplot(dat, aes(x, y)) +
-  geom_colorpath(cols = c("red", "blue", "green", "white"))
-
-patchwork::wrap_plots(mget(ls(pattern = "p[1-9]")))
+a1 / a2
 ```
 
 <img src="man/figures/README-geom_colorpath-2.png" width="100%" />
