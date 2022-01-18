@@ -4,15 +4,16 @@
 # ggtrail
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
 ## Features
 
-  - **geom\_trail**: A base plot type = “b” equivalent for ggplot. Works
-    also with text\!
-  - **scale\_aes\_craftfermenter**: Extended brewer scales for binned
+-   **geom\_colorpath**: Lines with alternating colors.
+-   **scale\_aes\_craftfermenter**: Extended brewer scales for binned
     scales (for color and fill aesthetic).
+-   **long guide ticks** for color scales (doesn’t really work yet)
+-   \*\*convenience scale calls that modify both x and y scales at the
+    same time
 
 ## Installation
 
@@ -26,64 +27,40 @@ devtools::install_github("tjebo/ggtrail")
 
 ### Examples
 
-The following it an example of how to use `geom_trail` in the context of
-the `amd` data set from the `eye` package.
-
-<details>
-
-<summary>Prepare AMD data for plot (click to unfold) </summary>
+#### geom\_colorpath
 
 ``` r
-library(tidyverse)
-library(eyedata)
+air_df <- data.frame(x = 1: length(AirPassengers), y = c(AirPassengers))
 
-amd_aggr <-
-  amd2 %>%
-  group_by(
-    age_cut10 = cut_width(age0, 10),
-    days_cut90 = cut_width(time, 90, labels = seq(0, 810, 90))
-  ) %>%
-  summarise(mean_va = mean(va)) %>%
-  filter(as.integer(days_cut90) <= 9)
+ggplot(air_df, aes(x, y)) +
+  geom_colorpath(cols = c("red", "blue", "green"))
 ```
 
-</details>
+<img src="man/figures/README-geom_colorpath-1.png" width="100%" />
 
 ``` r
-p <-
-  ggplot(amd_aggr, aes(days_cut90, mean_va, color = age_cut10)) + 
-  scale_color_brewer(palette = "Set1") +
-  theme_classic() +
-  labs(
-    x = "Follow up time [binned by 90 days]", y = "Mean VA [ETDRS letters]",
-    color = "Age strata"
-  )
+dat <- data.frame(x = seq(2,10, 2), y = seq(4,20, 4))
+
+p1 <- ggplot(dat, aes(x = x, y = y)) +
+  geom_colorpath()
+
+p2 <- ggplot(dat, aes(x, y)) +
+  geom_colorpath(cols = c("red", "blue"))
+
+p3 <- ggplot(dat, aes(x, y)) +
+  geom_colorpath(cols = c("red", "blue", "green"))
+
+p4 <- ggplot(dat, aes(x, y)) +
+  geom_colorpath(cols = c("red", "blue", "green", "white"))
+
+patchwork::wrap_plots(mget(ls(pattern = "p[1-9]")))
 ```
 
-``` r
-library(patchwork)
+<img src="man/figures/README-geom_colorpath-2.png" width="100%" />
 
-p1 <- p + geom_trail(aes(group = age_cut10), gap = .5)
-
-p2 <- p + 
-  geom_trail(aes(group = age_cut10, label = round(mean_va)), 
-             type = "text", 
-             show.legend = FALSE, gap = .3)
-
-p1 + p2 +
-  plot_layout(guides = "collect") &
-  theme(legend.position = "bottom")
-#> Warning: Removed 2 rows containing missing values (geom_trail).
-
-#> Warning: Removed 2 rows containing missing values (geom_trail).
-```
-
-<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
-
-## An extended brewer scale for binned scales
+#### An extended brewer scale for binned scales
 
 ``` r
-library(ggplot2)
 ggplot(mtcars, aes(mpg, disp, fill = hp)) +
   geom_point(shape = 21) +
   labs(title = "Craft brewer - an extended brewer scale") +
@@ -98,9 +75,25 @@ ggplot(mtcars, aes(mpg, disp, fill = hp)) +
 #> on all colors of Spectral
 ```
 
+<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
+
+#### Long ticks for color bars
+
+``` r
+ggplot(iris, aes(Sepal.Length, y = Sepal.Width, fill = Petal.Length))+
+  geom_point(shape = 21) +
+  scale_fill_fermenter(breaks = c(1:3,5,7), palette = "Reds") +
+  guides(fill = guide_longticks(
+    ticks = TRUE,
+    even.steps = FALSE,
+    frame.colour = "black",
+    ticks.colour = "black")) +
+  theme(legend.position = "bottom")
+```
+
 <img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
 
-## Common scale for both x and y in one call
+#### Common scale for both x and y in one call
 
 ``` r
 x <- y <- 0:10
@@ -132,7 +125,7 @@ actual raw data.
 
 (**Those simple precautions are**: Do not use functions in your script
 or report which write a file on your disk. This may easily overwrite
-your raw data\! E.g. `write.csv` and friends should be used only with
+your raw data! E.g. `write.csv` and friends should be used only with
 utmost care.)
 
 Any wrong assignments where you may need to rerun your scripts can be

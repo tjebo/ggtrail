@@ -1,4 +1,5 @@
 #' discrete gradient bar with separators, not ticks
+#' @name guide_longticks
 #' @param ... passed to guide_colorbar
 #' @description from https://stackoverflow.com/a/62558606/7941188 teunbrand
 #' @examples
@@ -8,22 +9,16 @@
 #'   guides(fill = guide_longticks(
 #'     ticks = TRUE,
 #'     even.steps = FALSE,
-#'     frame.linewidth = 0.55,
 #'     frame.colour = "black",
-#'     ticks.colour = "black",
-#'     ticks.linewidth = 0.3)) +
+#'     ticks.colour = "black")) +
 #'   theme(legend.position = "bottom")
+#' @export
 guide_longticks <- function(...) {
   guide <- guide_colorbar(...)
-  class(guide) <- c("guide", "guide_longticks", "colorbar")
+  class(guide) <- c("guide_longticks", "guide", "colorbar")
   guide
 }
-
-#' Method for guide_longticks
-#' @param guide guide object
-#' @param theme theme parameter
-#' @description Method for guide_longticks
-#'   from https://stackoverflow.com/a/62558606/7941188 teunbrand
+#' @keywords internal
 guide_gengrob.guide_longticks <- function(guide, theme) {
   dir <- guide$direction
   guide <- NextMethod()

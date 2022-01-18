@@ -1,24 +1,24 @@
-#' stat_colorpath
+#' geom_colorpath
 #' @description lines with alternating color "just for the effect".
 #' @name colorpath
 #' @examples
 #' air_df <- data.frame(x = 1: length(AirPassengers), y = c(AirPassengers))
 #'
 #' ggplot(air_df, aes(x, y)) +
-#'   colorpath(alt_cols = c("red", "blue", "green"))
+#'   colorpath(cols = c("red", "blue", "green"))
 #'
 #' dat <- data.frame(x = seq(2,10, 2), y = seq(4,20, 4))
 #'
 #' p1 <- ggplot(dat, aes(x = x, y = y)) +
-#'   stat_colorpath()
+#'   geom_colorpath()
 #' p2 <- ggplot(dat, aes(x, y)) +
-#'   stat_colorpath(cols = c("red", "blue"))
+#'   geom_colorpath(cols = c("red", "blue"))
 #'
 #' p3 <- ggplot(dat, aes(x, y)) +
-#'   stat_colorpath(cols = c("red", "blue", "green"))
+#'   geom_colorpath(cols = c("red", "blue", "green"))
 #'
 #' p4 <- ggplot(dat, aes(x, y)) +
-#'   stat_colorpath(cols = c("red", "blue", "green", "white"))
+#'   geom_colorpath(cols = c("red", "blue", "green", "white"))
 #'
 #' patchwork::wrap_plots(mget(ls(pattern = "p[1-9]")))
 #'
@@ -50,7 +50,7 @@ StatColorPath <- ggproto("StatColorPath", Stat,
 #'   increase if line takes sharp turns
 #' @param cols vector of alternating colors
 #' @export
-stat_colorpath <- function(mapping = NULL, data = NULL, geom = "segment",
+geom_colorpath <- function(mapping = NULL, data = NULL, geom = "segment",
                        position = "identity", na.rm = FALSE, show.legend = NA,
                        inherit.aes = TRUE, cols = c("black", "white"),
                        n_seg = 20, n = 100, ...) {

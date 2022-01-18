@@ -4,27 +4,27 @@
 \name{colorpath}
 \alias{colorpath}
 \alias{StatColorPath}
-\alias{stat_colorpath}
 \alias{geom_colorpath}
-\title{stat_colorpath}
+\title{geom_colorpath}
 \format{
 An object of class \code{StatColorPath} (inherits from \code{Stat}, \code{ggproto}, \code{gg}) of length 3.
 }
 \usage{
 StatColorPath
 
-stat_colorpath(
+geom_colorpath(
   mapping = NULL,
   data = NULL,
-  geom = "segment",
+  stat = "ColorPath",
   position = "identity",
+  ...,
+  arrow = NULL,
+  arrow.fill = NULL,
+  lineend = "butt",
+  linejoin = "round",
   na.rm = FALSE,
   show.legend = NA,
-  inherit.aes = TRUE,
-  cols = c("black", "white"),
-  n_seg = 20,
-  n = 100,
-  ...
+  inherit.aes = TRUE
 )
 
 geom_colorpath(
@@ -63,10 +63,25 @@ the plot data. The return value must be a \code{data.frame}, and
 will be used as the layer data. A \code{function} can be created
 from a \code{formula} (e.g. \code{~ head(.x, 10)}).}
 
-\item{geom}{The geometric object to use display the data}
+\item{stat}{The statistical transformation to use on the data for this
+layer, as a string.}
 
 \item{position}{Position adjustment, either as a string, or the result of
 a call to a position adjustment function.}
+
+\item{...}{Other arguments passed on to \code{\link[ggplot2:layer]{layer()}}. These are
+often aesthetics, used to set an aesthetic to a fixed value, like
+\code{colour = "red"} or \code{size = 3}. They may also be parameters
+to the paired geom/stat.}
+
+\item{arrow}{specification for arrow heads, as created by arrow().}
+
+\item{arrow.fill}{fill colour to use for the arrow head (if closed). \code{NULL}
+means use \code{colour} aesthetic.}
+
+\item{lineend}{Line end style (round, butt, square).}
+
+\item{linejoin}{Line join style (round, mitre, bevel).}
 
 \item{na.rm}{If \code{FALSE}, the default, missing values are removed with
 a warning. If \code{TRUE}, missing values are silently removed.}
@@ -82,29 +97,12 @@ rather than combining with them. This is most useful for helper functions
 that define both data and aesthetics and shouldn't inherit behaviour from
 the default plot specification, e.g. \code{\link[ggplot2:borders]{borders()}}.}
 
-\item{cols}{vector of alternating colors}
-
 \item{n_seg}{number of segments along line, according to taste}
 
 \item{n}{number of points at which interpolation takes place
 increase if line takes sharp turns}
 
-\item{...}{Other arguments passed on to \code{\link[ggplot2:layer]{layer()}}. These are
-often aesthetics, used to set an aesthetic to a fixed value, like
-\code{colour = "red"} or \code{size = 3}. They may also be parameters
-to the paired geom/stat.}
-
-\item{stat}{The statistical transformation to use on the data for this
-layer, as a string.}
-
-\item{arrow}{specification for arrow heads, as created by arrow().}
-
-\item{arrow.fill}{fill colour to use for the arrow head (if closed). \code{NULL}
-means use \code{colour} aesthetic.}
-
-\item{lineend}{Line end style (round, butt, square).}
-
-\item{linejoin}{Line join style (round, mitre, bevel).}
+\item{cols}{vector of alternating colors}
 }
 \description{
 lines with alternating color "just for the effect".
@@ -113,20 +111,20 @@ lines with alternating color "just for the effect".
 air_df <- data.frame(x = 1: length(AirPassengers), y = c(AirPassengers))
 
 ggplot(air_df, aes(x, y)) +
-  colorpath(alt_cols = c("red", "blue", "green"))
+  colorpath(cols = c("red", "blue", "green"))
 
 dat <- data.frame(x = seq(2,10, 2), y = seq(4,20, 4))
 
 p1 <- ggplot(dat, aes(x = x, y = y)) +
-  stat_colorpath()
+  geom_colorpath()
 p2 <- ggplot(dat, aes(x, y)) +
-  stat_colorpath(cols = c("red", "blue"))
+  geom_colorpath(cols = c("red", "blue"))
 
 p3 <- ggplot(dat, aes(x, y)) +
-  stat_colorpath(cols = c("red", "blue", "green"))
+  geom_colorpath(cols = c("red", "blue", "green"))
 
 p4 <- ggplot(dat, aes(x, y)) +
-  stat_colorpath(cols = c("red", "blue", "green", "white"))
+  geom_colorpath(cols = c("red", "blue", "green", "white"))
 
 patchwork::wrap_plots(mget(ls(pattern = "p[1-9]")))
 

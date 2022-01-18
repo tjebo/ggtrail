@@ -19,9 +19,7 @@ ggplot(iris, aes(Sepal.Length, y = Sepal.Width, fill = Petal.Length))+
   guides(fill = guide_longticks(
     ticks = TRUE,
     even.steps = FALSE,
-    frame.linewidth = 0.55,
     frame.colour = "black",
-    ticks.colour = "black",
-    ticks.linewidth = 0.3)) +
+    ticks.colour = "black")) +
   theme(legend.position = "bottom")
 }

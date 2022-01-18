@@ -21,9 +21,10 @@ library(ggtrail)
 
 ## Features
 
-- **geom_trail**: A base plot type = "b" equivalent for ggplot. 
-    Works also with text!
+- **geom_colorpath**: Lines with alternating colors. 
 - **scale_aes_craftfermenter**: Extended brewer scales for binned scales (for color and fill aesthetic).
+- **long guide ticks** for color scales (doesn't really work yet)
+- **convenience scale calls that modify both x and y scales at the same time
 
 ## Installation
 You can install the development version from [GitHub](https://github.com/) with:
@@ -32,57 +33,34 @@ You can install the development version from [GitHub](https://github.com/) with:
 # install.packages("devtools")
 devtools::install_github("tjebo/ggtrail")
 ```
+
 ### Examples
+#### geom_colorpath
+```{r geom_colorpath}
+air_df <- data.frame(x = 1: length(AirPassengers), y = c(AirPassengers))
 
-The following it an example of how to use `geom_trail` in the context of the `amd` data set from the `eye` package.
+ggplot(air_df, aes(x, y)) +
+  geom_colorpath(cols = c("red", "blue", "green"))
 
-<details>
-<summary>Prepare AMD data for plot (click to unfold) </summary>
+dat <- data.frame(x = seq(2,10, 2), y = seq(4,20, 4))
 
-```{r trail, message=FALSE}
-library(tidyverse)
-library(eyedata)
+p1 <- ggplot(dat, aes(x = x, y = y)) +
+  geom_colorpath()
 
-amd_aggr <-
-  amd2 %>%
-  group_by(
-    age_cut10 = cut_width(age0, 10),
-    days_cut90 = cut_width(time, 90, labels = seq(0, 810, 90))
-  ) %>%
-  summarise(mean_va = mean(va)) %>%
-  filter(as.integer(days_cut90) <= 9)
-```
-</details>
+p2 <- ggplot(dat, aes(x, y)) +
+  geom_colorpath(cols = c("red", "blue"))
 
-```{r geom_trail}
-p <-
-  ggplot(amd_aggr, aes(days_cut90, mean_va, color = age_cut10)) + 
-  scale_color_brewer(palette = "Set1") +
-  theme_classic() +
-  labs(
-    x = "Follow up time [binned by 90 days]", y = "Mean VA [ETDRS letters]",
-    color = "Age strata"
-  )
+p3 <- ggplot(dat, aes(x, y)) +
+  geom_colorpath(cols = c("red", "blue", "green"))
+
+p4 <- ggplot(dat, aes(x, y)) +
+  geom_colorpath(cols = c("red", "blue", "green", "white"))
+
+patchwork::wrap_plots(mget(ls(pattern = "p[1-9]")))
 ```
 
+#### An extended brewer scale for binned scales
 ```{r}
-library(patchwork)
-
-p1 <- p + geom_trail(aes(group = age_cut10), gap = .5)
-
-p2 <- p + 
-  geom_trail(aes(group = age_cut10, label = round(mean_va)), 
-             type = "text", 
-             show.legend = FALSE, gap = .3)
-
-p1 + p2 +
-  plot_layout(guides = "collect") &
-  theme(legend.position = "bottom")
-```
-
-## An extended brewer scale for binned scales
-```{r}
-library(ggplot2)
 ggplot(mtcars, aes(mpg, disp, fill = hp)) +
   geom_point(shape = 21) +
   labs(title = "Craft brewer - an extended brewer scale") +
@@ -95,7 +73,20 @@ ggplot(mtcars, aes(mpg, disp, fill = hp)) +
   )
 ```
 
-## Common scale for both x and y in one call
+#### Long ticks for color bars
+```{r}
+ggplot(iris, aes(Sepal.Length, y = Sepal.Width, fill = Petal.Length))+
+  geom_point(shape = 21) +
+  scale_fill_fermenter(breaks = c(1:3,5,7), palette = "Reds") +
+  guides(fill = guide_longticks(
+    ticks = TRUE,
+    even.steps = FALSE,
+    frame.colour = "black",
+    ticks.colour = "black")) +
+  theme(legend.position = "bottom")
+```
+
+#### Common scale for both x and y in one call
 ```{r}
 x <- y <- 0:10
 mydat <- data.frame(x, y)
