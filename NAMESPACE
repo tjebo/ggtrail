@@ -2,6 +2,7 @@
 
 S3method(makeContext,trail)
 export(GeomTrail)
+export(StatColorTrail)
 export(geom_trail)
 export(scale_axis_continuous)
 export(scale_axis_discrete)
