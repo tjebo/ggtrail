@@ -39,7 +39,7 @@ devtools::install_github("tjebo/ggtrail")
 
 ### Examples
 #### geom_roungseg
-Make round segments that start and end where they should. Big shoutout to [Allan Cameron](https://github.com/AllanCameron) who created this amazing geom. There were only minor modifications needed for this package. 
+Make round segments that start and end where they should. Big shoutout to [Allan Cameron](https://github.com/AllanCameron) who created this amazing geom [on Stack Overflow](https://stackoverflow.com/questions/77494430/how-to-draw-segment-with-round-end-that-does-not-extend-beyond-values/77496853#77496853). There were only minor modifications needed for this package. 
 ```{r}
 df_hor <- data.frame(
   x = 0, xend = 1, y = 1:3, yend = 1:3,
@@ -55,11 +55,17 @@ ggplot(df_hor, aes(x, y)) +
   scale_linewidth_identity()
 
 ## For example, this can be used to make nice looking rotas
-rota <- structure(list(day = structure(c(3L, 6L, 7L, 5L, 2L, 1L, 5L, 5L, 7L, 1L, 7L, 2L, 3L, 4L, 1L), levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"), class = "factor"), on = c(17.5, 7.5, 17.5, 6.5, 6.5, 11.5, 17.5, 21.3, 13.5, 15.5, 21.3, 19, 19, 7.5, 7.5), off = c(18.5, 8.75, 18.5, 7.5, 7.5, 12.75, 18.5, 22.75, 14.75, 16.75, 22.75, 19.75, 19.75, 8.75, 8.75)), row.names = c(15L, 44L, 31L, 36L, 6L, 43L, 23L, 26L, 39L, 5L, 34L, 12L, 16L, 1L, 41L), class = "data.frame")
+rota <- structure(list(day = structure(c(3L, 6L, 7L, 5L, 2L, 1L, 5L, 
+5L, 7L, 1L, 2L, 3L, 4L, 1L), levels = c("Sunday", "Saturday", "Friday", "Thursday", "Wednesday", "Tuesday", 
+"Monday"), class = "factor"), 
+    on = c(17.5, 7.5, 17.5, 6.5, NA, 11.5, 17.5, 21.3, 13.5, 
+    15.5, NA, 19, 7.5, 7.5), off = c(18.5, 18.75, 22.5, 7.5, 
+    NA, 14.75, 18.5, 22.75, 14.75, 19.75, NA, 19.75, 15.75, 
+    10.75)), class = "data.frame")
 
 ggplot(rota) +
   geom_roundseg(aes(y = day, yend = day, x = on, xend = off),
-    color = "darkred", linewidth = 4
+    color = "darkred", linewidth = 4, na.rm = T
   ) +
   scale_x_continuous(limits = c(min(rota$on), 24), expand = c(0, 0), breaks = seq(0, 24, 4)) +
   labs(y = NULL, x = NULL) +
