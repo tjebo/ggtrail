@@ -8,12 +8,12 @@
 
 ## Features
 
+- **geom_roundseg**: Make round segments that start and end where they
+  should.
 - **geom_colorpath**: Lines with alternating colors.
 - **scale_aes_craftfermenter**: Extended brewer scales for binned scales
   (for color and fill aesthetic).
 - **long guide ticks** for color scales (doesn’t really work yet)
-- \*\*convenience scale calls that modify both x and y scales at the
-  same time
 
 ## Installation
 
@@ -72,19 +72,22 @@ library(patchwork)
 dat <- data.frame(x = seq(2,10, 2), y = seq(4,20, 4))
 
 p1 <- ggplot(dat, aes(x = x, y = y)) +
-  geom_colorpath()+
+  geom_colorpath(linewidth = 2)+
   ggtitle("Default colors")
 
 p2 <- ggplot(dat, aes(x, y)) +
-  geom_colorpath(cols = c("red", "blue"))+
+  geom_colorpath(linewidth = 2,
+        cols = c("lightblue", "darkblue"))+
   ggtitle("Two colors")
 
 p3 <- ggplot(dat, aes(x, y)) +
-  geom_colorpath(cols = c("red", "blue", "green"))+
+  geom_colorpath(linewidth = 2, 
+    cols = c("darkred", "darkblue", "lightblue"))+
   ggtitle("Three colors")
 
 p4 <- ggplot(dat, aes(x, y)) +
-  geom_colorpath(cols = c("red", "blue", "green", "white"))+
+  geom_colorpath(linewidth = 2, 
+                 cols = c("darkred", "darkblue", "lightblue", "white"))+
   ggtitle("Four colors")
 
 wrap_plots(mget(ls(pattern = "p[1-9]")))
@@ -97,11 +100,11 @@ wrap_plots(mget(ls(pattern = "p[1-9]")))
 air_df <- data.frame(x = 1: length(AirPassengers), y = c(AirPassengers))
 
 a1 <- ggplot(air_df, aes(x, y)) +
-  geom_colorpath(cols = c("red", "blue", "green"))+
+  geom_colorpath(cols = c("darkred", "darkblue", "lightblue"))+
   ggtitle("Works also with more complex curves")
 
 a2 <- ggplot(air_df, aes(x, y)) +
-  geom_colorpath(cols = c("red", "blue", "green"), n_seg = 150)+
+  geom_colorpath(cols = c("darkred", "darkblue", "lightblue"), n_seg = 150)+
   ggtitle("... more color segments")
 
 a1 / a2
