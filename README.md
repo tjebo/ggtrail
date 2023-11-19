@@ -33,8 +33,9 @@ devtools::install_github("tjebo/ggtrail")
 #### geom_roungseg
 
 Make round segments that start and end where they should. Big shoutout
-to Allan Cameron who created this amazing geom. There were only minor
-modifications needed for this package.
+to [Allan Cameron](https://github.com/AllanCameron) who created this
+amazing geom. There were only minor modifications needed for this
+package.
 
 ``` r
 df_hor <- data.frame(
