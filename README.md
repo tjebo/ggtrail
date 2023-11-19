@@ -6,6 +6,9 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
+Little disclaimer: This is an unsupported package and you will use it at
+your own risk.
+
 ## Features
 
 - **geom_roundseg**: Make round segments that start and end where they
@@ -29,7 +32,9 @@ devtools::install_github("tjebo/ggtrail")
 
 #### geom_roungseg
 
-Make round segments that start and end where they should.
+Make round segments that start and end where they should. Big shoutout
+to Allan Cameron who created this amazing geom. There were only minor
+modifications needed for this package.
 
 ``` r
 df_hor <- data.frame(
