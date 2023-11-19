@@ -1,7 +1,11 @@
+### CURRENTLY NOT WORKING - some error message after probably some significant ggplot2 changes
+
 #' discrete gradient bar with separators, not ticks
 #' @name guide_longticks
+#' @author teunbrand
 #' @param ... passed to guide_colorbar
-#' @description from https://stackoverflow.com/a/62558606/7941188 teunbrand
+#' @description long ticks, giving a neater look to a discrete color bar
+#'   largely copied and only mildly modified from https://stackoverflow.com/a/62558606/7941188 teunbrand
 #' @examples
 #' ggplot(iris, aes(Sepal.Length, y = Sepal.Width, fill = Petal.Length))+
 #'   geom_point(shape = 21) +

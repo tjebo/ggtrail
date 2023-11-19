@@ -10,7 +10,8 @@ guide_longticks(...)
 \item{...}{passed to guide_colorbar}
 }
 \description{
-from https://stackoverflow.com/a/62558606/7941188 teunbrand
+long ticks, giving a neater look to a discrete color bar
+largely copied and only mildly modified from https://stackoverflow.com/a/62558606/7941188 teunbrand
 }
 \examples{
 ggplot(iris, aes(Sepal.Length, y = Sepal.Width, fill = Petal.Length))+
@@ -22,4 +23,7 @@ ggplot(iris, aes(Sepal.Length, y = Sepal.Width, fill = Petal.Length))+
     frame.colour = "black",
     ticks.colour = "black")) +
   theme(legend.position = "bottom")
+}
+\author{
+teunbrand
 }

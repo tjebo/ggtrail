@@ -7,7 +7,7 @@
 #' air_df <- data.frame(x = 1: length(AirPassengers), y = c(AirPassengers))
 #'
 #' ggplot(air_df, aes(x, y)) +
-#'   colorpath(cols = c("red", "blue", "green"))
+#'   geom_colorpath(cols = c("red", "blue", "green"))
 #'
 #' dat <- data.frame(x = seq(2,10, 2), y = seq(4,20, 4))
 #'
@@ -61,19 +61,5 @@ geom_colorpath <- function(mapping = NULL, data = NULL, geom = "segment",
     position = position, show.legend = show.legend, inherit.aes = inherit.aes,
     params = list(na.rm = na.rm, cols = cols, n = n, n_seg = n_seg,...)
   )
-}
-
-#' @rdname colorpath
-#' @export
-#'
-geom_colorpath <- function (mapping = NULL, data = NULL, stat = "ColorPath", position = "identity",
-                            ..., arrow = NULL, arrow.fill = NULL, lineend = "butt", linejoin = "round",
-                            na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)
-{
-  layer(data = data, mapping = mapping, stat = stat, geom = GeomSegment,
-        position = position, show.legend = show.legend, inherit.aes = inherit.aes,
-        params = list(arrow = arrow, arrow.fill = arrow.fill,
-                      lineend = lineend, linejoin = linejoin, na.rm = na.rm,
-                      ...))
 }
 
